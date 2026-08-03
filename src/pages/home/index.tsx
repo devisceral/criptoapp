@@ -1,12 +1,62 @@
 import { BsSearch } from "react-icons/bs"
 import styles from "./home.module.css"
 import { Link, useNavigate } from "react-router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+
+interface CoinProps {
+    id: string;
+    name: string;
+    symbol: string;
+    priceUsd: string;
+    vwap24h: string;
+    changePercent24Hr: string;
+    rank: string;
+    suply: string;
+    maxSupply: string;
+    marketCapUsd: string;
+    volumeUsd24Hr: string;
+    explorer: string;
+}
+
+interface DataProp {
+    data: CoinProps[];
+}
 
 export function Home(){
-    const [input, setInput] = useState("")
+    const VITE_COINCAP_API_KEY = import.meta.env.VITE_COINCAP_API_KEY;
+
+    const [input, setInput] = useState("");
+    const [coins, setCoins] = useState<CoinProps[]>([]);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    async function getData(){
+        fetch(`https://rest.coincap.io/v3/assets/?limit=10&offset=0&apiKey=${VITE_COINCAP_API_KEY}`)
+        .then((response) => response.json())
+        .then((data: DataProp) => {
+            const coinData = data.data;
+            const price = Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+            })
+            
+            const formatedResult = coinData.map((item)=> {
+                const formated = {
+                    ...item,
+                    formatedPrice: price.format(Number(item.priceUsd)),
+                }
+
+                return formated;
+            })
+
+            console.log(formatedResult)
+        }
+        )
+    }
 
     function handleSubmit(e: React.SubmitEvent){
         e.preventDefault()
