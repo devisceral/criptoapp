@@ -66,7 +66,10 @@ export function Home(){
                 return formated;
             })
 
-            setCoins((prevCoins) => [...prevCoins, ...formatedResult]);
+            const listCoins = [...coins, ...formatedResult];
+
+            
+            setCoins(listCoins);
         })
     }
 
