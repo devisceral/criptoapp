@@ -3,7 +3,7 @@ import styles from "./home.module.css"
 import { Link, useNavigate } from "react-router"
 import { useState, useEffect } from "react"
 
-interface CoinProps {
+export interface CoinProps {
     id: string;
     name: string;
     symbol: string;
@@ -30,15 +30,16 @@ export function Home(){
 
     const [input, setInput] = useState("");
     const [coins, setCoins] = useState<CoinProps[]>([]);
+    const [offset, setOffset] = useState(0);
 
     const navigate = useNavigate();
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [offset]);
 
     async function getData(){
-        fetch(`https://rest.coincap.io/v3/assets/?limit=10&offset=0&apiKey=${VITE_COINCAP_API_KEY}`)
+        fetch(`https://rest.coincap.io/v3/assets/?limit=10&offset=${offset}&apiKey=${VITE_COINCAP_API_KEY}`)
         .then((response) => response.json())
         .then((data: DataProp) => {
             const coinData = data.data;
@@ -65,7 +66,7 @@ export function Home(){
                 return formated;
             })
 
-            setCoins(formatedResult);
+            setCoins((prevCoins) => [...prevCoins, ...formatedResult]);
         })
     }
 
@@ -78,8 +79,14 @@ export function Home(){
     }
 
     function handleGetMore(){
-        alert("Teste")
+        if(offset === 0){
+            setOffset(10);
+            return;
+        }
+
+        setOffset(offset + 10);
     }
+    
     return(
         <main className={styles.container}>
             <form className={styles.form} onSubmit={handleSubmit}>
